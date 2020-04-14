@@ -114,6 +114,7 @@ ENV/
 win-env/
 env.bak/
 venv.bak/
+win-env.bak/
 
 # Spyder project settings
 .spyderproject
@@ -138,3 +139,7 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+# General folder ignores
+/tmp
+/tmp/*
