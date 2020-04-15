@@ -6,12 +6,8 @@ class VideoObject(object):
     name = ''
     season = ''
     episode = ''
-    path = ''
-    video = ''
 
-    def __init__(self, name, season, episode, path, video):
+    def __init__(self, name, season, episode):
         self.name = name
         self.season = season
         self.episode = episode
-        self.path = path
-        self.video = video

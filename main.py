@@ -4,92 +4,56 @@ from os import mkdir
 from pythonopensubtitles.opensubtitles import OpenSubtitles
 from pythonopensubtitles.utils import File
 from videoobject import VideoObject
+from functions import find_most_downloaded
 
-korra = VideoObject(
-    'Korra',
-    '01',
-    '01',
-    'C:\\Users\\eitan\\Downloads\\The Legend of Korra (2012) Season 3 S03 + Extras (1080p BluRay x265 HEVC 10bit AAC 5.1 RCVR) REPACK',
-    'The Legend of Korra (2012) - S03E03 - The Earth Queen (1080p BluRay x265 RCVR).mkv'
-)
 
-series = input("Series name: ")
-season = input("Season number: ")
-episode = input("Episode Number: ")
+def main():
+    # Input for the series name season and episode
+    series = input("Series name: ")
+    season = input("Season number: ")
+    episode = input("Episode Number: ")
+    # Append 0 at the start if they are only one-digit numbers
+    if len(season) == 1:
+        season = '0' + season
+    if len(episode) == 1:
+        episode = '0' + episode
+    vo = VideoObject(series, season, episode)
 
-if len(season) == 1:
-    season = '0' + season
-if len(episode) == 1:
-    episode = '0' + episode
+    # Create directory Subs if it doesn't exist
+    if not path.exists('Subs'):
+        mkdir('Subs')
+        print("Directory Subs created successfully")
+    else:
+        print("Directory Subs exists")
+    
+    # Login to opensubtitles.org through the API
+    print("Logging in...")
+    ost = OpenSubtitles()
+    ost.login(vo.username, vo.password)
 
-print('season - ' + season)
-print('episode - ' + episode)
-
-if not path.exists('Subs'):
-    mkdir('Subs')
-    print("Directory Subs created successfully")
-else:
-    print("Directory Subs exists")
-
-print("Logging in...")
-
-ost = OpenSubtitles()
-token = ost.login('Ocelaw', 'EThan6627084')
-assert type(token) == str
-
-#f = File(path.join(korra.path, korra.video))
-#hash = f.get_hash()
-#assert type(hash) == str
-
-#size = f.size
-#assert type(size) == str
-
-print("Searching subtitles...")
-
-#data = ost.search_subtitles([
-#    {
-#        'sublanguageid': 'eng',
-#        'moviehash': hash,
-#        'moviebytesize': size
-#    }
-#])
-
-#if len(data) == 0:
-#    print("Failed to find Subtitles, trying to find by name")
-#    data = ost.search_subtitles([
-#        {
-#            'sublanguageid': 'eng',
-#            'query': series,
-#            'season': season,
-#            'episode': episode
-#        }
-#    ])
-#else:
-#    print("Subtitles found, information for debugging:")
-
-data = ost.search_subtitles([
-    {
+    print("Searching subtitles...")
+    #Search the subtitles by name
+    data = ost.search_subtitles([{
         'sublanguageid': 'eng',
         'query': series,
         'season': season,
         'episode': episode
+    }])
+
+    print('data length: ' + str(len(data)))
+
+    # Subtitle file ID, used for setting the correct name in the dictionary
+    subtitle_file_id = find_most_downloaded(data)
+
+    # Downloads the subtitle file to the \subs folder
+    print("Downloading to .\\Subs...")
+    filenames = {
+        str(subtitle_file_id): vo.name + ' - S' + vo.season + 'E' + vo.episode + '-eng.srt'
     }
-])
+    ost.download_subtitles([subtitle_file_id], output_directory='.\\Subs\\', override_filenames=filenames, extension='srt')
+    print("Success! :)")
+    ost.logout()
 
-id_subtitle = data[0].get('IDSubtitle')
-id_subtitle_file = data[0].get('IDSubtitleFile')
-id_sub_movie_file = data[0].get('IDSubMovieFile')
-assert type(data) == list
-print(id_subtitle + ', '  + id_subtitle_file + ', ' + id_sub_movie_file)
 
-print("Downloading to .\\Subs...")
-
-filenames = {
-    str(id_subtitle_file): series + ' - S' + season + 'E' + episode + '-eng.srt'
-}
-
-ost.download_subtitles([id_subtitle_file], output_directory='.\\Subs\\', override_filenames=filenames, extension='srt')
-
-print("Success! :)")
-
-ost.logout()
+if __name__ == "__main__":
+    main()
