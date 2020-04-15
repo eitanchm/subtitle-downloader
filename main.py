@@ -25,34 +25,27 @@ def main():
     filename_list = get_video_filenames()
     video_list = to_video_object_list(filename_list)
 
+    print("Downloading all subs...")
+    # Search and download subtitles for all videos
     for video in video_list:
-        print("series: " + video.search_name + " season: " + video.season + " episode: " + video.episode)
+        print("Downloading " + video.search_name + " S" + video.season + " E" + video.episode + "Subs")
+        # Creates a list of all the searched subtitles
+        search_data = ost.search_subtitles([{
+            'sublanguageid': 'eng',
+            'query': video.search_name.lower(),
+            'season': video.season,
+            'episode': video.episode
+        }])
+        # Finds subtitle file ID of most downloaded subtitles file
+        subtitle_file_id = find_most_downloaded(search_data)
+        ost.download_subtitles([subtitle_file_id], output_directory='.\\Subs\\',
+                               override_filenames={str(subtitle_file_id): video.file_name + '-eng.srt'},
+                               extension='srt')
     
+    print("Done!")
+
+    print("Logging out...")
     ost.logout()
-
-    """
-    print("Searching subtitles...")
-    #Search the subtitles by name
-    data = ost.search_subtitles([{
-        'sublanguageid': 'eng',
-        'query': series,
-        'season': season,
-        'episode': episode
-    }])
-
-    print('data length: ' + str(len(data)))
-
-    # Subtitle file ID, used for setting the correct name in the dictionary
-    subtitle_file_id = find_most_downloaded(data)
-
-    # Downloads the subtitle file to the \subs folder
-    print("Downloading to .\\Subs...")
-    filenames = {
-        str(subtitle_file_id): vo.name + ' - S' + vo.season + 'E' + vo.episode + '-eng.srt'
-    }
-    ost.download_subtitles([subtitle_file_id], output_directory='.\\Subs\\', override_filenames=filenames, extension='srt')
-    print("Success! :)")
-    """
 
 
 if __name__ == "__main__":

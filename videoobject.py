@@ -17,9 +17,9 @@ class VideoObject(object):
         # Finds the name of the movie / series and keeps the data in
         # self.search_name
         for i in range(len(self.file_name)):
-            if self.file_name[i] == '-':
+            if self.file_name[i] == '(':
                 self.search_name = self.file_name[0:i-1]
-                if self.search_name[-1] == ' ':
+                if self.search_name[len(self.search_name) - 1] == ' ':
                     self.search_name = self.search_name.rstrip()
                 break
     

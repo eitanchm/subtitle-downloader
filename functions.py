@@ -1,7 +1,9 @@
 import os
 from os import path, mkdir, listdir
 from os.path import exists
+from getpass import getpass
 from videoobject import VideoObject
+from pythonopensubtitles.opensubtitles import OpenSubtitles
 
 
 def find_most_downloaded(search_data):
@@ -28,7 +30,7 @@ def create_subs_dir():
 def get_login_credentials():
     # Inputs login credentials to opensubtitles.org from the user
     username = input("Enter opensubtitles.org username: ")
-    password = input("Enter opensubtitles.org password: ")
+    password = getpass("Enter opensubtitles.org password: ")
     return (username, password)
 
 
