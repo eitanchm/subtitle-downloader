@@ -1,36 +1,36 @@
-from os import path
-from os.path import exists
-from os import mkdir
 from pythonopensubtitles.opensubtitles import OpenSubtitles
 from pythonopensubtitles.utils import File
 from videoobject import VideoObject
-from functions import find_most_downloaded
+
+from functions import *
 
 
 def main():
-    # Input for the series name season and episode
-    series = input("Series name: ")
-    season = input("Season number: ")
-    episode = input("Episode Number: ")
-    # Append 0 at the start if they are only one-digit numbers
-    if len(season) == 1:
-        season = '0' + season
-    if len(episode) == 1:
-        episode = '0' + episode
-    vo = VideoObject(series, season, episode)
-
-    # Create directory Subs if it doesn't exist
-    if not path.exists('Subs'):
-        mkdir('Subs')
-        print("Directory Subs created successfully")
-    else:
-        print("Directory Subs exists")
+    # Run the program in current directory
+    # Get login details from user
+    ( username, password ) = get_login_credentials()
     
+    # The OpenSubtitles object
+    ost = OpenSubtitles()
+
     # Login to opensubtitles.org through the API
     print("Logging in...")
-    ost = OpenSubtitles()
-    ost.login(vo.username, vo.password)
+    while ost.login(username, password) is None:
+        print("Login failed, try again.")
+        ( username, password ) = get_login_credentials()
+    
+    # Creates the Subs directory if it doesn't exist
+    create_subs_dir()
+    # Gets a list of all the video file names in the directory (.mp4 or .mkv)
+    filename_list = get_video_filenames()
+    video_list = to_video_object_list(filename_list)
 
+    for video in video_list:
+        print("series: " + video.search_name + " season: " + video.season + " episode: " + video.episode)
+    
+    ost.logout()
+
+    """
     print("Searching subtitles...")
     #Search the subtitles by name
     data = ost.search_subtitles([{
@@ -52,7 +52,7 @@ def main():
     }
     ost.download_subtitles([subtitle_file_id], output_directory='.\\Subs\\', override_filenames=filenames, extension='srt')
     print("Success! :)")
-    ost.logout()
+    """
 
 
 if __name__ == "__main__":
